@@ -8,43 +8,29 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-// https://time.com/tag/photo-of-the-day/
-// get '.section-curated__primary .image-container'
-// get data-src
+// https://apod.nasa.gov/apod/astropix.html
+// get SRC from IMG tag
 // using cloudflare workers HTMLRewriter
 // return 301 redirect to data-src
 
-/* const rewriter = new HTMLRewriter() */
-/* 	.on('.section-curated__primary .image-container', { */
-/* 		element(element) { */
-/* 			element.setAttribute('src', element.getAttribute('data-src')); */
-/* 		}, */
-/* 	}) */
-
-/* export default { */
-/* 	async fetch(request, env, ctx) { */
-/* 		const res = await fetch('https://time.com/tag/photo-of-the-day/'); */
-/* 		const html = await res.text(); */
-/* 	}, */
-/* }; */
-
-let url;
+let path = "";
 const rewriter = new HTMLRewriter()
-	.on('.section-curated__primary .image-container', {
+	.on("img", {
 		element(element) {
-			url = element.getAttribute('data-src')
+			path = element.getAttribute("src");
 		},
-	});
+	})
 
 export default {
 	async fetch(request, env, ctx) {
-		const res = await fetch('https://time.com/tag/photo-of-the-day/');
+		const res = await fetch(`https://apod.nasa.gov/apod/astropix.html`);
 		const html = await res.text();
 		await rewriter.transform(new Response(html));
+		console.log(path)
 		return new Response(null, {
 			status: 301,
 			headers: {
-				Location: url,
+				Location: `https://apod.nasa.gov/apod/${path}`,
 			},
 		});
 	},
