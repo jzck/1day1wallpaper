@@ -13,7 +13,7 @@
 // using cloudflare workers HTMLRewriter
 // return 301 redirect to data-src
 
-let path = "";
+let path;
 const rewriter = new HTMLRewriter()
 	.on("img", {
 		element(element) {
@@ -25,10 +25,9 @@ export default {
 	async fetch(request, env, ctx) {
 		const res = await fetch(`https://apod.nasa.gov/apod/astropix.html`);
 		const html = await res.text();
-		await rewriter.transform(new Response(html));
-		console.log(path)
+		await rewriter.transform(new Response(html)).arrayBuffer();
 		return new Response(null, {
-			status: 301,
+			status: 302,
 			headers: {
 				Location: `https://apod.nasa.gov/apod/${path}`,
 			},
